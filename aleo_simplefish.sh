@@ -116,7 +116,8 @@ install_snarkos(){
 	cd ${Workspace}
         echo "下载并编译HarukaMa/aleo-prover优化后代码"
         git clone https://github.com/HarukaMa/aleo-prover.git --depth 1 ${Workspace}
-        cargo install --path ${Workspace}
+	cargo build --release
+        #cargo install --path ${Workspace}
         echo "prover编译完成！"
 
 

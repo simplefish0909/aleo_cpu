@@ -4,7 +4,6 @@
 # 不定期更新撸毛教程
 
 Workspace=/root/aleo-prover
-SnarkOSDir=/root/aleo
 ScreenName=aleo
 KeyFile="/root/my_aleo_key.txt"
 
@@ -28,7 +27,7 @@ has_screen(){
 # 判断是否有private_key
 # 0 = 是  1 = 否
 has_private_key(){
-	PrivateKey=$(cat ${KeyFile} | grep "Private Key" | awk '{print $3}')	
+	PrivateKey=$(cat ${KeyFile} | grep "Private key" | awk '{print $3}')	
 	if [ -z "${PrivateKey}" ]
 	then
 		echo "密钥不存在！"
@@ -41,9 +40,9 @@ has_private_key(){
 
 ## 生成密钥
 generate_key(){
-	cd ${SnarkOSDir}
+	cd ${Workspace}
 	echo "开始生成账户密钥"
-	snarkos account new > ${KeyFile}
+	./target/release/aleo-prover --new-address > ${KeyFile}
 
 	has_private_key || exit 1
 
@@ -76,13 +75,15 @@ install_snarkos(){
 	# 判断是否为root用户
 	is_root
 
-	mkdir ${SnarkOSDir}
-	cd ${SnarkOSDir}	
+	mkdir ${Workspace}
+        cd ${Workspace}
 
 	# 安装必要的工具
 	sudo apt update
 	sudo apt install curl
 	sudo apt install git
+	sudo apt install libssl-dev
+
 
 	echo "开始安装rust"
 	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  -s -- -y
@@ -95,29 +96,11 @@ install_snarkos(){
         sudo ufw allow 4140
         echo "防火墙设置完毕"
 
-	echo "开始下载aleo代码"
-	git clone https://github.com/AleoHQ/snarkOS.git --depth 1 ${SnarkOSDir} 
-	if [ -f ${SnarkOSDir}/build_ubuntu.sh ]
-        then
-               	echo "aleo代码下载完成!" 
-        else
-                echo "aleo代码下载失败，请确认服务器已安装好git后重新再试。可尝试手动执行 apt install git" && exit 1
-        fi
-
-	echo "开始安装依赖项"
-	bash ${SnarkOSDir}/build_ubuntu.sh
-	echo "依赖项安装完成！"
-
-	echo "开始编译snarkos"
-	cargo install --path ${SnarkOSDir}
 
 	# cpu优化代码
-	mkdir ${Workspace}
-	cd ${Workspace}
         echo "下载并编译HarukaMa/aleo-prover优化后代码"
         git clone https://github.com/HarukaMa/aleo-prover.git --depth 1 ${Workspace}
 	cargo build --release
-        #cargo install --path ${Workspace}
         echo "prover编译完成！"
 
 
@@ -151,7 +134,7 @@ run_prover(){
 
 	# 启动一个screen,并在screen中启动prover节点
         screen -dmS ${ScreenName}
-	PrivateKey=$(cat ${KeyFile} | grep "Private Key" | awk '{print $3}')
+	PrivateKey=$(cat ${KeyFile} | grep "Private key" | awk '{print $3}')
         echo "使用密钥${PrivateKey}启动prover节点"
 	ThreadNum=`cat /proc/cpuinfo |grep "processor"|wc -l`  
         cmd=$"./target/release/aleo-prover -p ${PrivateKey} -t ${ThreadNum}"

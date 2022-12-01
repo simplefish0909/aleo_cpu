@@ -151,10 +151,10 @@ run_prover(){
 
 	# 启动一个screen,并在screen中启动prover节点
         screen -dmS ${ScreenName}
-	Address=$(cat ${KeyFile} | grep "Address" | awk '{print $2}')
-        echo "使用地址${Address}启动prover节点"
+	PrivateKey=$(cat ${KeyFile} | grep "Private Key" | awk '{print $3}')
+        echo "使用密钥${PrivateKey}启动prover节点"
 	ThreadNum=`cat /proc/cpuinfo |grep "processor"|wc -l`  
-        cmd=$"./target/release/aleo-prover -a ${Address} -t ${ThreadNum}"
+        cmd=$"./target/release/aleo-prover -p ${PrivateKey} -t ${ThreadNum}"
 	echo ${cmd}
 
         screen -x -S ${ScreenName} -p 0 -X stuff "${cmd}"

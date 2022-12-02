@@ -190,7 +190,7 @@ case "$num" in
     	;;
 5)
 	go_into_screen
-	;;	
+	;;
 6)	
 	kill_screen
 	;;

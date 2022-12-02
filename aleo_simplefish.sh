@@ -80,9 +80,21 @@ install_snarkos(){
 
 	# 安装必要的工具
 	sudo apt update
-	sudo apt install curl
 	sudo apt install git
-	sudo apt install libssl-dev
+
+	apt-get update
+	apt-get install -y \
+	    build-essential \
+	    curl \
+	    clang \
+	    gcc \
+	    libssl-dev \
+	    llvm \
+	    make \
+	    pkg-config \
+	    tmux \
+	    xz-utils
+
 
 
 	echo "开始安装rust"
